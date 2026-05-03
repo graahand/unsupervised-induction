@@ -55,9 +55,9 @@ def run_pipeline(config: PipelineConfig) -> dict[str, object]:
 
     labels = cluster_words(words, context_distributions, config.num_clusters)
     cluster_map = build_cluster_map(words, labels)
-    cluster_words = group_words_by_cluster(cluster_map)
+    clustered_words = group_words_by_cluster(cluster_map)
 
-    morpheme_stats = collect_morpheme_stats(cluster_words)
+    morpheme_stats = collect_morpheme_stats(clustered_words)
     morpheme_probs = compute_morpheme_probabilities(morpheme_stats)
     allowed_morphemes = filter_morphemes_by_prob(morpheme_probs, config.morpheme_prob_threshold)
     cluster_morpheme_stems = select_top_morphemes(
@@ -78,13 +78,13 @@ def run_pipeline(config: PipelineConfig) -> dict[str, object]:
 
     output_dir = config.output_dir
     ensure_output_dir(output_dir)
-    write_json(output_dir / "pos_clusters.json", cluster_words)
+    write_json(output_dir / "pos_clusters.json", clustered_words)
     write_json(output_dir / "paradigms.json", serialize_paradigms(paradigms))
     write_json(output_dir / "segmentation_samples.json", sample_segmentations)
 
     return {
         "vocab_size": len(vocab),
-        "clusters": len(cluster_words),
+        "clusters": len(clustered_words),
         "paradigms": len(paradigms),
         "sample_segmentations": len(sample_segmentations),
         "output_dir": str(output_dir),
